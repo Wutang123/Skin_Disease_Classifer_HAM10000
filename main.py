@@ -11,15 +11,23 @@
 # Description:   Main function to call other functions
 #---------------------------------------------------------------------
 
-# Import
-from process_Data import *
+# IMPORTS:
+from Functions.processData import *
 
-# Funtion
+# FUNCTIONS:
+#---------------------------------------------------------------------
+# Function:    main()
+# Description: Main Functions; calls other functions
+#---------------------------------------------------------------------
 def main():
-    print("Hello World!")
-    proccess_Data()
+    print("=====> START MAIN FUNCTION")
 
-# Modules
+    analysis_data = False # Set to True if you want to conduct Exploratory Data Analysis (EDA)
+    proccess_Data(analysis_data)
+
+    print("=====> END MAIN FUNCTION")
+
+# MODULES:
 if __name__ == "__main__":
     main()
 

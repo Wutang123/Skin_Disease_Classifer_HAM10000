@@ -22,6 +22,8 @@ import seaborn as sns
 from PIL import Image
 import itertools
 import datetime
+import time
+import seaborn as sn
 
 # sklearn libraries
 from sklearn.metrics import accuracy_score, confusion_matrix
@@ -85,7 +87,7 @@ def train(train_loader, model, loss_function, optimizer, device):
         train_loss += loss.item()
         train_accuracy += (pred.argmax(1) == labels).type(torch.float).sum().item()
 
-        if (batch + 1) % 100 == 0:
+        if batch % 100 == 0:
             loss, current = loss.item(), batch * len(images)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
@@ -152,13 +154,13 @@ def plot_confusion_matrix(cm, classes, normalize = False, title = 'Confusion mat
 # Function:    model()
 # Description: Train and test dataset on models
 #---------------------------------------------------------------------
-def model(skin_df_train, skin_df_test, number_Cell_Type):
+def model(file, skin_df_train, skin_df_test, number_Cell_Type):
     print(">>> START MODEL")
 
     learning_rate = 1e-3
     batch = 32
     num_worker = 4
-    epoch_num = 10
+    epoch_num = 2 #10
     input_size = 225
     norm_mean = (0.49139968, 0.48215827, 0.44653124)
     norm_std = (0.24703233, 0.24348505, 0.26158768)
@@ -203,22 +205,54 @@ def model(skin_df_train, skin_df_test, number_Cell_Type):
     total_train_accuracy = []
     total_test_loss = []
     total_test_accuracy = []
+    train_time_list = []
+    test_time_list = []
+    total_time_list = []
+
     for epoch in range(epoch_num):
+        start_time = time.time()
+
         print('EPOCH {}:'.format(epoch))
 
         train_loss, train_accuracy = train(train_loader, model, loss_function, optimizer, device)
         total_train_loss.append(train_loss) # Average Training Loss
         total_train_accuracy.append(train_accuracy) # Average Training Accuracy
 
+        mid_time = time.time()
+        training_time_difference = mid_time - start_time
+        train_time_list.append(training_time_difference)
+
         test_val, test_accuracy = test(test_loader, model, loss_function, device)
         total_test_loss.append(test_val) # Average Test Loss
         total_test_accuracy.append(test_accuracy) # Average Test Accuracy
 
+        end_time = time.time()
+        test_time_difference = end_time - mid_time
+        test_time_list.append(test_time_difference)
+        total_time_difference = end_time - start_time
+        total_time_list.append(total_time_difference)
 
-    print("total_train_loss: ", total_train_loss)
-    print("total_train_accuracy: ", total_train_accuracy)
-    print("total_test_loss: ", total_train_loss)
-    print("total_test_accuracy: ", total_test_accuracy)
+
+    print("Total Training Loss: ", total_train_loss)
+    print("Total Training Loss: ", np.mean(total_train_loss))
+
+    print("Total Training Accuracy: ", total_train_accuracy)
+    print("Total Training Accuracy: ", total_train_accuracy)
+
+    print("Total Testing Loss: ", total_train_loss)
+    print("Total Testing Loss: ", total_train_loss)
+
+    print("Total Testing Accuracy: ", total_test_accuracy)
+    print("Total Testing Accuracy: ", total_test_accuracy)
+
+    print("Training Time List: ", train_time_list)
+    print("Training Time List: ", train_time_list)
+
+    print("Test Time List: ", test_time_list)
+    print("Test Time List: ", test_time_list)
+
+    print("Total Time List: ", total_time_list)
+    print("Total Time List: ", total_time_list)
 
     # Model Evaluation
     fig = plt.figure()
@@ -244,6 +278,37 @@ def model(skin_df_train, skin_df_test, number_Cell_Type):
     plt.plot(total_test_accuracy, label = 'Testing Accuracy')
     plt.legend()
     fig.savefig('OUTPUT\Figures\Training_Accuracy_vs_Testing_Accuracy.png', bbox_inches = 'tight')
+
+
+
+    # Initialize the prediction and label lists(tensors)
+    predlist = torch.zeros(0, dtype = torch.long, device='cpu')
+    lbllist = torch.zeros(0, dtype = torch.long, device='cpu')
+
+    with torch.no_grad():
+        for i, (inputs, classes) in enumerate(test_loader):
+            inputs = inputs.to(device)
+            classes = classes.to(device)
+            outputs = model(inputs)
+            _, preds = torch.max(outputs, 1)
+
+            # Append batch prediction results
+            predlist = torch.cat([predlist, preds.view(-1).cpu()])
+            lbllist = torch.cat([lbllist, classes.view(-1).cpu()])
+
+    # Confusion matrix
+    conf_mat = confusion_matrix(lbllist.numpy(), predlist.numpy())
+    print(conf_mat)
+
+    # plot the confusion matrix
+    plot_labels = ['akiec', 'bcc', 'bkl', 'df', 'nv', 'vasc','mel']
+    plot_confusion_matrix(conf_mat, plot_labels)
+    plt.show()
+
+    # Generate Classification Report
+    report = classification_report(lbllist.numpy(), predlist.numpy(), target_names = plot_labels)
+    print(report)
+
 
 
 

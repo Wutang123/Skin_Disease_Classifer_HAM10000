@@ -1,5 +1,6 @@
 # HAM10000 Dataset
-HAM10000/
+INPUT/
+OUTPUT/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

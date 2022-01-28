@@ -24,6 +24,8 @@ import seaborn as sns
 from PIL import Image
 import itertools
 import datetime
+import _pickle as pickle
+import json
 
 # sklearn libraries
 from sklearn.metrics import confusion_matrix
@@ -158,11 +160,14 @@ def splitData(skin_df):
 # Function:    proccess_Data()
 # Description: Function to process Data.
 #---------------------------------------------------------------------
-def proccess_Data(analysis_data):
-    print(">>> START DATA PROCESS")
+def proccess_Data(file, analysis_data):
+    file.write(">>> STARTING DATA PROCESS \n")
+    print(">>> STARTING DATA PROCESS")
 
     save_fig = True
+
     base_data_dir = 'INPUT\HAM10000' # Location of base dataset directory
+    file.write("Input Directory: " + base_data_dir + "\n")
 
     # Merging images from both folders HAM10000_images_part1.zip and HAM10000_images_part2.zip into one dictionary
     imageid_path_dict = {os.path.splitext(os.path.basename(x))[0]: x
@@ -178,6 +183,9 @@ def proccess_Data(analysis_data):
         'vasc': 'Vascular lesions',
         'df': 'Dermatofibroma'
     }
+    file.write("lesion_type_dict: \n")
+    file.write(json.dumps(lesion_type_dict))
+    file.write("\n")
 
     skin_df = pd.read_csv(os.path.join(base_data_dir, 'HAM10000_metadata'))
 
@@ -207,12 +215,13 @@ def proccess_Data(analysis_data):
         eda(skin_df, save_fig, number_Cell_Type)
 
     # Split Dataset into Training and Test Set
-    [skin_df_train, skin_df_test] = splitData(skin_df)
+    # [skin_df_train, skin_df_test] = splitData(skin_df)
 
     # Create Model, Train/Test, and Evaluate
-    model(skin_df_train, skin_df_test, number_Cell_Type)
+    # model(file, skin_df_train, skin_df_test, number_Cell_Type)
 
-    print(">>> END DATA PROCESS")
+    file.write(">>> ENDING DATA PROCESS \n")
+    print(">>> ENDING DATA PROCESS")
 
 
 #=====================================================================

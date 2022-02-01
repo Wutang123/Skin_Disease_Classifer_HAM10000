@@ -15,8 +15,8 @@
 from Functions.processData import *
 import os
 from datetime import datetime
-import logging
 import glob
+import argparse
 
 # FUNCTIONS:
 #---------------------------------------------------------------------
@@ -34,6 +34,9 @@ def main():
 
 
 
+
+
+    print(">>>>> Starting Program \n")
     now = datetime.now()
     date_time = now.strftime("%m-%d-%Y_%H.%M.%S")
     log_file = "OUTPUT\Log\log_file_" + date_time + ".txt"
@@ -42,15 +45,11 @@ def main():
     file.write("=" * 10 + "\n")
     file.write("Log File Generated On: "+ date_time + "\n")
     file.write("-" * 10 + "\n")
-    file.write("=====> STARTING MAIN FUNCTION \n")
-    print("=====> STARTING MAIN FUNCTION")
 
     analysis_data = False # Set to True if you want to conduct Exploratory Data Analysis (EDA)
-    proccess_Data(file, analysis_data)
+    # proccess_Data(file, analysis_data)
 
-    file.write("=====> ENDING MAIN FUNCTION \n")
     file.write("=" * 10)
-    print("=====> ENDING MAIN FUNCTION \n")
     file.close()
 
 # MODULES:

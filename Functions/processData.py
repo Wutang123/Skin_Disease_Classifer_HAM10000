@@ -22,26 +22,12 @@ import os
 from glob import glob
 import seaborn as sns
 from PIL import Image
-import itertools
-import datetime
 import json
 
 # sklearn libraries
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-
-# pytorch libraries
-import torch
-from torch import optim,nn
-from torch.autograd import Variable
-from torch.utils.data import DataLoader,Dataset
-from torchvision import models,transforms
-
-# to make the results are reproducible
-np.random.seed(10)
-torch.manual_seed(10)
-torch.cuda.manual_seed(10)
 
 # FUNCTIONS:
 #---------------------------------------------------------------------
@@ -148,20 +134,20 @@ def eda(skin_df, save_fig, number_Cell_Type):
 #---------------------------------------------------------------------
 def splitData(skin_df):
 
-    # 80:20 ratio
-    skin_df_train, skin_df_test = train_test_split(skin_df, test_size = 0.2)
+    skin_df_train, skin_df_test = train_test_split(skin_df, test_size = 0.3)
+    skin_df_val, skin_df_test = train_test_split(skin_df_test, test_size = 0.5)
+
     skin_df_train = skin_df_train.reset_index()
+    skin_df_val = skin_df_val.reset_index()
     skin_df_test = skin_df_test.reset_index()
 
-    return [skin_df_train, skin_df_test]
+    return [skin_df_train, skin_df_val, skin_df_test]
 
 #---------------------------------------------------------------------
 # Function:    proccess_Data()
 # Description: Function to process Data.
 #---------------------------------------------------------------------
-def proccess_Data(file, analysis_data):
-
-    save_fig = True
+def proccess_Data(args, file, analysis_data, save_fig, save_model, model_path):
 
     base_data_dir = 'INPUT\HAM10000' # Location of base dataset directory
     file.write("Input Directory: " + base_data_dir + "\n\n")
@@ -212,10 +198,27 @@ def proccess_Data(file, analysis_data):
         eda(skin_df, save_fig, number_Cell_Type)
 
     # Split Dataset into Training and Test Set
-    [skin_df_train, skin_df_test] = splitData(skin_df)
+    [skin_df_train, skin_df_val, skin_df_test] = splitData(skin_df)
+
+    print("Training Dateset Count:")
+    print(skin_df_train['cell_type'].value_counts().sort_index(), "\n")
+    print("Validation Dateset Count:")
+    print(skin_df_val['cell_type'].value_counts().sort_index(), "\n")
+    print("Testing Dateset Count:")
+    print(skin_df_test['cell_type'].value_counts().sort_index(), "\n\n")
+
+    file.write("Training Dateset Count: \n")
+    file.write(skin_df_train['cell_type'].value_counts().sort_index().to_json())
+    file.write("\n")
+    file.write("Validation Dateset Count: \n")
+    file.write(skin_df_val['cell_type'].value_counts().sort_index().to_json())
+    file.write("\n")
+    file.write("Testing Dateset Count: \n")
+    file.write(skin_df_test['cell_type'].value_counts().sort_index().to_json())
+    file.write("\n\n")
 
     # Create Model, Train/Test, and Evaluate
-    model(file, save_fig, skin_df_train, skin_df_test, number_Cell_Type)
+    model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_test, number_Cell_Type, model_path)
 
 
 #=====================================================================

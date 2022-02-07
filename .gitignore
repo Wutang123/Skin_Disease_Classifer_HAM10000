@@ -1,6 +1,13 @@
 # HAM10000 Dataset
 INPUT/
-OUTPUT/
+OUTPUT/Figures/*
+OUTPUT/Models/alexnet/*
+OUTPUT/Models/efficientnet_b0/*
+OUTPUT/Models/mobilenet_v2/*
+OUTPUT/Models/resnet50/*
+OUTPUT/Models/shufflenet_v2_x1_0/*
+OUTPUT/Models/squeezenet1_1/*
+OUTPUT/Models/vgg16/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -17,14 +17,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 import os
-from glob import glob
 from PIL import Image
-import time
 import seaborn as sns
 import csv
+from torchsummary import summary
+from contextlib import redirect_stdout
+import time
 
 # sklearn libraries
-from sklearn.metrics import confusion_matrix, roc_curve, roc_auc_score, classification_report, plot_roc_curve, accuracy_score, auc
+from sklearn.metrics import confusion_matrix, classification_report, roc_curve, roc_auc_score, plot_roc_curve, auc
 
 # pytorch libraries
 import torch
@@ -204,7 +205,7 @@ def plot_confusion_matrix(file, target_names, save_fig, model_path, y_label, y_p
     ax = sns.heatmap(conf_mat, annot = True, cmap = plt.cm.Blues, fmt = 'g', linewidths = 1)
     ax.set_xticklabels(target_names)
     ax.set_yticklabels(target_names)
-    ax.set(ylabel="True Labels", xlabel="Predicted Labels")
+    ax.set(ylabel = "True Labels", xlabel = "Predicted Labels")
 
     # Drawing the frame
     for _, spine in ax.spines.items():
@@ -350,7 +351,7 @@ def genReport(model, file, save_fig, test_loader, model_path, device, num_classe
                 total_images += 1
                 correctly_identified += int(labels[i] == max_index)
         print("Correctly identified = ", correctly_identified, " Total_images = ", total_images, " Accuracy = ", (float(correctly_identified)/total_images) * 100, "\n")
-        file.write("Correctly identified = " + str(correctly_identified) + " Total_images = " + str(total_images) + " Accuracy = " + str((float(correctly_identified)/total_images) * 100) + "\n\n")
+        file.write("Correctly identified = " + str(correctly_identified) + " Total_images = " + str(total_images) + " Accuracy = " + str((float(correctly_identified)/total_images) * 100) + "\n")
 
     y_label = y_label.numpy()
     y_pred = y_pred.numpy()
@@ -419,23 +420,69 @@ def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_
                                         transforms.ColorJitter(brightness = 0.1, contrast = 0.1, hue = 0.1),
                                         transforms.ToTensor(), transforms.Normalize(norm_mean, norm_std)])
     training_set = Dataset(skin_df_train, transform = train_transform)
-    train_loader = DataLoader(training_set, batch_size = batch, shuffle = True, num_workers = num_worker)
+    train_loader = DataLoader(training_set, batch_size = batch, shuffle = True, num_workers = num_worker, drop_last = True)
 
     # Val
     val_transform = transforms.Compose([transforms.Resize((input_size, input_size)), transforms.ToTensor(),
                                         transforms.Normalize(norm_mean, norm_std)])
     val_set    = Dataset(skin_df_val, transform = val_transform)
-    val_loader = DataLoader(val_set, batch_size = batch, shuffle = False, num_workers = num_worker)
+    val_loader = DataLoader(val_set, batch_size = batch, shuffle = False, num_workers = num_worker, drop_last = True)
 
     # Test
     test_transform = transforms.Compose([transforms.Resize((input_size, input_size)), transforms.ToTensor(),
                                         transforms.Normalize(norm_mean, norm_std)])
     test_set    = Dataset(skin_df_test, transform = test_transform)
-    test_loader = DataLoader(test_set, batch_size = batch, shuffle = False, num_workers = num_worker)
+    test_loader = DataLoader(test_set, batch_size = batch, shuffle = False, num_workers = num_worker, drop_last = True)
 
     # Loss and Optimizer Function
     loss_function = nn.CrossEntropyLoss().to(device)
     optimizer    = optim.Adam(model.parameters(), lr = learning_rate)
+
+    # Verify Tensor Size, should be [batch_size, channel_size, image_height, image_width] (e.g [32, 3, 225, 225])
+    first_train = 1
+    train_size = None
+    for i, (images, labels) in enumerate(train_loader):
+        if(first_train):
+            train_size = images.shape
+            first_train = 0
+        else:
+            if(images.shape != train_size):
+                print("ERROR: Mismatch train_loader Size!")
+                file.write("ERROR: Mismatch train_loader Size!\n")
+                sys.exit()
+
+    first_val = 1
+    val_size = None
+    for i, (images, labels) in enumerate(val_loader):
+        if(first_val):
+            val_size = images.shape
+            first_val = 0
+        else:
+            if(images.shape != val_size):
+                print("ERROR: Mismatch val_loader Size!")
+                file.write("ERROR: Mismatch val_loader Size!\n")
+                sys.exit()
+
+    first_test = 1
+    test_size = None
+    for i, (images, labels) in enumerate(test_loader):
+        if(first_test):
+            test_size = images.shape
+            first_test = 0
+        else:
+            if(images.shape != test_size):
+                print("ERROR: Mismatch test_loader Size!")
+                file.write("ERROR: Mismatch test_loader Size!\n")
+                sys.exit()
+
+    # Summary of Model
+    print("Tensor Image Size [batch_size, channel_size, image_height, image_width]: ", train_size)
+    file.write("\nTensor Image Size [batch_size, channel_size, image_height, image_width]: " + str(train_size) + "\n\n")
+
+    summary(model, input_size = (train_size[1], train_size[2], train_size[3]))
+    print("\n")
+    with redirect_stdout(file):
+        summary(model, input_size = (train_size[1], train_size[2], train_size[3]))
 
     # Main Training and Validate Function
     total_train_loss     = []

@@ -198,20 +198,20 @@ def proccess_Data(args, file, analysis_data, save_fig, save_model, model_path):
     # Split Dataset into Training and Test Set
     [skin_df_train, skin_df_val, skin_df_test] = splitData(skin_df)
 
-    print("Training Dateset Count:")
+    print("Training Dataset Count:")
     print(skin_df_train['cell_type'].value_counts().sort_index(), "\n")
-    print("Validation Dateset Count:")
+    print("Validation Dataset Count:")
     print(skin_df_val['cell_type'].value_counts().sort_index(), "\n")
-    print("Testing Dateset Count:")
+    print("Testing Dataset Count:")
     print(skin_df_test['cell_type'].value_counts().sort_index(), "\n\n")
 
-    file.write("Training Dateset Count: \n")
+    file.write("Training Dataset Count: \n")
     file.write(skin_df_train['cell_type'].value_counts().sort_index().to_json())
     file.write("\n")
-    file.write("Validation Dateset Count: \n")
+    file.write("Validation Dataset Count: \n")
     file.write(skin_df_val['cell_type'].value_counts().sort_index().to_json())
     file.write("\n")
-    file.write("Testing Dateset Count: \n")
+    file.write("Testing Dataset Count: \n")
     file.write(skin_df_test['cell_type'].value_counts().sort_index().to_json())
     file.write("\n\n")
 

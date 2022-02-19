@@ -386,7 +386,7 @@ def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_
     norm_std = (0.24703233, 0.24348505, 0.26158768)
     num_classes = number_Cell_Type
 
-    print("Learing Rate:       {}".format(learning_rate))
+    print("Learning Rate:       {}".format(learning_rate))
     file.write("Learing Rate:       {} \n".format(learning_rate))
     print("Batch Size:         {}".format(batch))
     file.write("Batch Size:         {} \n".format(batch))

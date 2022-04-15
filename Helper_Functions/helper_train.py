@@ -6,116 +6,33 @@
 # Professor:     Professor Haiyan Hu
 # Name:          Justin Wu
 # Project:       Skin Disease Classifier
-# Function:      models.py
-# Create:        01/22/22
-# Description:   Train, Validate, and Test dataset on models
+# Function:      processData.py
+# Create:        01/17/22
+# Description:   Function used to gather HAM1000 dataset and process data
 #---------------------------------------------------------------------
 
 # IMPORTS:
+from Helper_Functions.dataset import *
+from Helper_Functions.find_model import *
+from Helper_Functions.find_dict_type import *
+
 # Python libraries
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
 import os
-from PIL import Image
-import seaborn as sns
 import csv
 from torchsummary import summary
 from contextlib import redirect_stdout
 import time
 
-# sklearn libraries
-from sklearn.metrics import confusion_matrix, classification_report, roc_curve, roc_auc_score, plot_roc_curve, auc
-
 # pytorch libraries
 import torch
 from torch import optim, nn
-from torch.utils.data import DataLoader, Dataset
-from torchvision import models, transforms
-
-# Class:
-#---------------------------------------------------------------------
-# Function:    Dataset()
-# Description: Characterizes HAM10000 for PyTorch
-#---------------------------------------------------------------------
-class Dataset(Dataset):
-    # Characterizes a dataset for PyTorch
-    def __init__(self, df, transform = None):
-        'Initialization'
-        self.df = df
-        self.transform = transform
-
-    def __len__(self):
-        # Denotes the total number of samples
-        return len(self.df)
-
-    def __getitem__(self, index):
-        # Generates one sample of data
-        # Load data and get label
-        X = Image.open(self.df['path'][index])
-        y = torch.tensor(int(self.df['cell_type_idx'][index]))
-
-        if self.transform:
-            X = self.transform(X)
-        return X, y
-
-
-
+from torch.utils.data import DataLoader
+from torchvision import transforms
 
 # FUNCTIONS:
-#---------------------------------------------------------------------
-# Function:    findModel()
-# Description: Select model and update last layer
-#---------------------------------------------------------------------
-def findModel(model_name, use_pretrained, num_classes, device):
-    # Models: alexnet, vgg16, resnet50, squeezenet1_1, shufflenet_v2_x1_0, mobilenet_v2, efficientnet_b0
-
-    model = None
-    num_ftrs = 0
-
-    if model_name == "alexnet":
-        model = models.alexnet(pretrained = use_pretrained)
-        num_ftrs = model.classifier[6].in_features # Find number of features in last layer
-        model.fc = nn.Linear(num_ftrs, num_classes)
-
-    elif model_name == "vgg16":
-        model = models.vgg16(pretrained = use_pretrained)
-        num_ftrs = model.classifier[6].in_features
-        model.fc = nn.Linear(num_ftrs, num_classes)
-
-    elif model_name == "resnet50":
-        model = models.resnet50(pretrained = use_pretrained)
-        num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, num_classes)
-
-    elif model_name == "squeezenet1_1":
-        model = models.squeezenet1_1(pretrained = use_pretrained)
-        model.fc = nn.Conv2d(512, num_classes, kernel_size = (1,1), stride = (1,1))
-
-    elif model_name == "shufflenet_v2_x1_0":
-        model = models.shufflenet_v2_x1_0(pretrained = use_pretrained)
-        num_ftrs = model.fc.in_features
-
-    elif model_name == "mobilenet_v2":
-        model = models.mobilenet_v2(pretrained = use_pretrained)
-        num_ftrs = model.classifier[1].in_features
-        model.fc = nn.Linear(num_ftrs,num_classes)
-
-    elif model_name == "efficientnet_b0":
-        model = models.efficientnet_b0(pretrained = use_pretrained)
-        num_ftrs = model.classifier[1].in_features
-        model.fc = nn.Linear(num_ftrs,num_classes)
-
-    else:
-        print("Invalid Model Name. Exiting...")
-        exit()
-
-    model = model.to(device) # Add device to model
-
-    return model
-
-
-
 #---------------------------------------------------------------------
 # Function:    train()
 # Description: Train model
@@ -144,10 +61,6 @@ def train(file, train_loader, model, loss_function, optimizer, device):
 
         train_loss += loss.item()
         train_accuracy += (pred.argmax(1) == labels).type(torch.float).sum().item()
-
-        if batch % 100 == 0:
-            loss, current = loss.item(), batch * len(images)
-            # print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
     train_loss /= num_batches
     train_accuracy /= size
@@ -181,6 +94,7 @@ def val(file, val_loader, model, loss_function, device):
             loss = loss_function(pred, labels)
             val_loss += loss.item()
             val_accuracy += (pred.argmax(1) == labels).type(torch.float).sum().item()
+
     val_loss /= num_batches
     val_accuracy /= size
     print(f"Validate Error:  [Accuracy: {(100 * val_accuracy):>0.1f}%, Avg loss: {val_loss:>8f}]\n")
@@ -188,40 +102,6 @@ def val(file, val_loader, model, loss_function, device):
 
     return val_loss, val_accuracy
 
-
-
-#---------------------------------------------------------------------
-# Function:    plot_confusion_matrix()
-# Description: Plot confusion matrix
-#---------------------------------------------------------------------
-def plot_confusion_matrix(file, target_names, save_fig, model_path, y_label, y_pred):
-
-    conf_mat = confusion_matrix(y_label, y_pred)
-    print("Confusion Matrix: \n", conf_mat, "\n")
-    file.write("Confusion Matrix: \n" + str(conf_mat) + "\n\n")
-
-    fig = plt.figure()
-    plt.title('Confusion matrix')
-    ax = sns.heatmap(conf_mat, annot = True, cmap = plt.cm.Blues, fmt = 'g', linewidths = 1)
-    ax.set_xticklabels(target_names)
-    ax.set_yticklabels(target_names)
-    ax.set(ylabel = "True Labels", xlabel = "Predicted Labels")
-
-    # Drawing the frame
-    for _, spine in ax.spines.items():
-        spine.set_visible(True)
-        spine.set_linewidth(1)
-
-    if (save_fig):
-        save_path = os.path.join(model_path, "Confusion_Matrix.png")
-        fig.savefig(save_path, bbox_inches = 'tight')
-
-    # Per-class accuracy
-    class_accuracy = 100 * conf_mat.diagonal()/conf_mat.sum(1)
-    for i in range(len(target_names)):
-        print(target_names[i], ": ", round(class_accuracy[i],2), "%")
-        file.write(target_names[i] + "=" + str(round(class_accuracy[i],2)) + "% \n")
-    file.write("\n\n")
 
 
 #---------------------------------------------------------------------
@@ -246,8 +126,8 @@ def calcResults(file, save_data, model_path, model_name, total_train_loss, total
     file.write("Total Time (sec):    " + str(total_time_list) + "\n\n")
     print("")
 
-    print("Best Training Accuracy: ", max(total_train_accuracy), " at Epoch: ", total_train_accuracy.index(max(total_train_accuracy)))
-    file.write("Best Training Accuracy: " + str(max(total_train_accuracy)) + " at Epoch: " + str(total_train_accuracy.index(max(total_train_accuracy))) + "\n")
+    print("Best Training Accuracy:  ", max(total_train_accuracy), " at Epoch: ", total_train_accuracy.index(max(total_train_accuracy)))
+    file.write("Best Training Accuracy:  " + str(max(total_train_accuracy)) + " at Epoch: " + str(total_train_accuracy.index(max(total_train_accuracy))) + "\n")
     print("Best Validate Accuracy:  ", max(total_val_accuracy), " at Epoch: ", total_val_accuracy.index(max(total_val_accuracy)))
     file.write("Best Validate Accuracy:  " + str(max(total_val_accuracy)) + " at Epoch: " + str(total_val_accuracy.index(max(total_val_accuracy))) + "\n\n")
     print("")
@@ -292,6 +172,8 @@ def plotFigures(save_fig, model_path, total_train_loss, total_train_accuracy, to
     if (save_fig):
         save_path = os.path.join(model_path, "Training_Loss_vs_Training_Accuracy.png")
         fig.savefig(save_path, bbox_inches = 'tight')
+    fig.clf()
+    plt.close(fig)
 
     fig = plt.figure()
     plt.plot(total_val_loss, label = 'Validate Loss')
@@ -300,6 +182,8 @@ def plotFigures(save_fig, model_path, total_train_loss, total_train_accuracy, to
     if (save_fig):
         save_path = os.path.join(model_path, "Validate_Loss_vs_Validate_Accuracy.png")
         fig.savefig(save_path, bbox_inches = 'tight')
+    fig.clf()
+    plt.close(fig)
 
     fig = plt.figure()
     plt.plot(total_train_loss, label = 'Training Loss')
@@ -308,6 +192,8 @@ def plotFigures(save_fig, model_path, total_train_loss, total_train_accuracy, to
     if (save_fig):
         save_path = os.path.join(model_path, "Training_Loss_vs_Validate_Loss.png")
         fig.savefig(save_path, bbox_inches = 'tight')
+    fig.clf()
+    plt.close(fig)
 
     fig = plt.figure()
     plt.plot(total_train_accuracy, label = 'Training Accuracy')
@@ -316,77 +202,41 @@ def plotFigures(save_fig, model_path, total_train_loss, total_train_accuracy, to
     if (save_fig):
         save_path = os.path.join(model_path, "Training_Accuracy_vs_Validate_Accuracy.png")
         fig.savefig(save_path, bbox_inches = 'tight')
-
-
-
-#---------------------------------------------------------------------
-# Function:    genReport()
-# Description: Generate confusion matrix, classification report, and AUC ROC score
-#---------------------------------------------------------------------
-def genReport(model, file, save_fig, test_loader, model_path, device, num_classes):
-
-    model.eval()
-    y_label    = torch.zeros(0, dtype = torch.long, device = 'cpu')
-    y_pred     = torch.zeros(0, dtype = torch.long, device = 'cpu')
-    y_pred_auc = torch.zeros(0, dtype = torch.long, device = 'cpu')
-
-    with torch.no_grad():
-        correctly_identified = 0
-        total_images = 0
-        for images, labels in test_loader:
-            N = images.size(0)
-            images   = images.to(device)
-            labels   = labels.to(device)
-            outputs  = model(images)
-            _, preds = torch.max(outputs, 1)
-
-            # Append batch prediction results
-            y_label    = torch.cat([y_label, labels.view(-1).cpu()])
-            y_pred     = torch.cat([y_pred, preds.view(-1).cpu()])
-            y_pred_auc = torch.cat([y_pred_auc, nn.functional.softmax(outputs, dim = 1).cpu()])
-
-            for i in range(N):
-                soft_max_output = nn.functional.softmax(outputs[i], dim = -1)
-                max_index = torch.argmax(soft_max_output)
-                total_images += 1
-                correctly_identified += int(labels[i] == max_index)
-        print("Correctly identified = ", correctly_identified, " Total_images = ", total_images, " Accuracy = ", (float(correctly_identified)/total_images) * 100, "\n")
-        file.write("Correctly identified = " + str(correctly_identified) + " Total_images = " + str(total_images) + " Accuracy = " + str((float(correctly_identified)/total_images) * 100) + "\n")
-
-    y_label = y_label.numpy()
-    y_pred = y_pred.numpy()
-    y_pred_auc = y_pred_auc.numpy()
-
-    target_names = ['AKIEC','BCC','BKL','DF','NV','MEL','VASC']
-
-    # Confusion Matrix
-    plot_confusion_matrix(file, target_names, save_fig, model_path, y_label, y_pred)
-
-    # Classification Report
-    report = classification_report(y_label, y_pred, target_names = target_names)
-    print("Report: \n", report, "\n")
-    file.write("Report: \n" + report + "\n")
-
+    fig.clf()
+    plt.close(fig)
 
 
 #---------------------------------------------------------------------
-# Function:    model()
-# Description: Train and Validate dataset on multiple models
+# Function:    proccess_Data()
+# Description: Function to process Data.
 #---------------------------------------------------------------------
-def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_test, number_Cell_Type, model_path):
+def helper_train(args, file, model_path, skin_df_train, skin_df_val, number_Cell_Type):
 
-    learning_rate = args.lr
-    batch = args.batch
-    num_worker = args.worker
-    epoch_num = args.epoch
-    # epoch_num = 3
-    input_size = args.imgsz
+    save_fig       = args.save_fig
+    save_model     = args.save_model
+    save_data      = args.save_data
     use_pretrained = args.pretrained
-    norm_mean = (0.49139968, 0.48215827, 0.44653124)
-    norm_std = (0.24703233, 0.24348505, 0.26158768)
-    num_classes = number_Cell_Type
+    learning_rate  = args.lr
+    batch          = args.batch
+    num_worker     = args.worker
+    epoch_num      = args.epoch
+    input_size     = args.imgsz
+    model_name     = args.model
+    norm_mean      = (0.49139968, 0.48215827, 0.44653124)
+    norm_std       = (0.24703233, 0.24348505, 0.26158768)
+    num_classes    = number_Cell_Type
 
-    print("Learning Rate:       {}".format(learning_rate))
+    print("Model:              {}".format(model_name))
+    file.write("Model:              {} \n".format(model_name))
+    print("Save Figures:       {}".format(save_fig))
+    file.write("Save Figures:       {} \n".format(save_fig))
+    print("Save Models:        {}".format(save_model))
+    file.write("Save Models:        {} \n".format(save_model))
+    print("Save Data:          {}".format(save_data))
+    file.write("Save Data:          {} \n".format(save_data))
+    print("Pretrained:         {}".format(use_pretrained))
+    file.write("Pretrained:         {} \n".format(use_pretrained))
+    print("Learning Rate:      {}".format(learning_rate))
     file.write("Learing Rate:       {} \n".format(learning_rate))
     print("Batch Size:         {}".format(batch))
     file.write("Batch Size:         {} \n".format(batch))
@@ -394,6 +244,8 @@ def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_
     file.write("Number of Workers:  {} \n".format(num_worker))
     print("Epoch Number:       {}".format(epoch_num))
     file.write("Epoch Number:       {} \n".format(epoch_num))
+    print("Number of Classes:  {}".format(num_classes))
+    file.write("Number of Classes:  {}".format(num_classes))
     print("Image Size:         {} by {}".format(input_size, input_size))
     file.write("Image Size:         {} by {} \n".format(input_size, input_size))
     print("Normalized Mean:   ", norm_mean)
@@ -408,10 +260,10 @@ def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_
 
     # Check to see if we load a trained model
     model = None
-    model_name = args.model
-    model = findModel(model_name, use_pretrained, num_classes, device)
-    if args.load:
-        model.load_state_dict(torch.load(args.load))
+    model = find_model(model_name, use_pretrained, num_classes, device)
+
+    # print("skin_df_train: ", skin_df_train)
+    # print("skin_df_val: ", skin_df_val)
 
     # Dataset Transformations
     # Train
@@ -419,20 +271,14 @@ def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_
                                         transforms.RandomVerticalFlip(), transforms.RandomRotation(20),
                                         transforms.ColorJitter(brightness = 0.1, contrast = 0.1, hue = 0.1),
                                         transforms.ToTensor(), transforms.Normalize(norm_mean, norm_std)])
-    training_set = Dataset(skin_df_train, transform = train_transform)
+    training_set = dataset(skin_df_train, transform = train_transform)
     train_loader = DataLoader(training_set, batch_size = batch, shuffle = True, num_workers = num_worker, drop_last = True)
 
     # Val
     val_transform = transforms.Compose([transforms.Resize((input_size, input_size)), transforms.ToTensor(),
                                         transforms.Normalize(norm_mean, norm_std)])
-    val_set    = Dataset(skin_df_val, transform = val_transform)
+    val_set    = dataset(skin_df_val, transform = val_transform)
     val_loader = DataLoader(val_set, batch_size = batch, shuffle = False, num_workers = num_worker, drop_last = True)
-
-    # Test
-    test_transform = transforms.Compose([transforms.Resize((input_size, input_size)), transforms.ToTensor(),
-                                        transforms.Normalize(norm_mean, norm_std)])
-    test_set    = Dataset(skin_df_test, transform = test_transform)
-    test_loader = DataLoader(test_set, batch_size = batch, shuffle = False, num_workers = num_worker, drop_last = True)
 
     # Loss and Optimizer Function
     loss_function = nn.CrossEntropyLoss().to(device)
@@ -445,6 +291,12 @@ def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_
         if(first_train):
             train_size = images.shape
             first_train = 0
+            # print(images.shape)
+            # print(images.dtype)
+            # print(images.device)
+            # print(labels.shape)
+            # print(labels.dtype)
+            # print(labels.device)
         else:
             if(images.shape != train_size):
                 print("ERROR: Mismatch train_loader Size!")
@@ -463,24 +315,11 @@ def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_
                 file.write("ERROR: Mismatch val_loader Size!\n")
                 sys.exit()
 
-    first_test = 1
-    test_size = None
-    for i, (images, labels) in enumerate(test_loader):
-        if(first_test):
-            test_size = images.shape
-            first_test = 0
-        else:
-            if(images.shape != test_size):
-                print("ERROR: Mismatch test_loader Size!")
-                file.write("ERROR: Mismatch test_loader Size!\n")
-                sys.exit()
-
     # Summary of Model
     print("Tensor Image Size [batch_size, channel_size, image_height, image_width]: ", train_size)
     file.write("\nTensor Image Size [batch_size, channel_size, image_height, image_width]: " + str(train_size) + "\n\n")
 
     summary(model, input_size = (train_size[1], train_size[2], train_size[3]))
-    print("\n")
     with redirect_stdout(file):
         summary(model, input_size = (train_size[1], train_size[2], train_size[3]))
 
@@ -502,7 +341,7 @@ def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_
         file.write("EPOCH: " + str(epoch) + "\n")
 
         train_loss, train_accuracy = train(file, train_loader, model, loss_function, optimizer, device)
-        total_train_loss.append(train_loss) # Average Training Loss
+        total_train_loss.append(train_loss)         # Average Training Loss
         total_train_accuracy.append(train_accuracy) # Average Training Accuracy
 
         mid_time = time.time()
@@ -510,7 +349,7 @@ def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_
         train_time_list.append(training_time_difference)
 
         val_loss, val_accuracy = val(file, val_loader, model, loss_function, device)
-        total_val_loss.append(val_loss) # Average Val Loss
+        total_val_loss.append(val_loss)         # Average Val Loss
         total_val_accuracy.append(val_accuracy) # Average Val Accuracy
 
         end_time = time.time()
@@ -524,7 +363,7 @@ def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_
 
     # Save Model
     if(save_model):
-        save_path = os.path.join(model_path, model_name + ".pth")
+        save_path = os.path.join(model_path, "classifier.pth")
         torch.save(model.state_dict(), save_path)
 
     print("")
@@ -534,4 +373,4 @@ def model(args, file, save_fig, save_model, skin_df_train, skin_df_val, skin_df_
     save_data = args.save_data
     calcResults(file, save_data, model_path, model_name, total_train_loss, total_train_accuracy, total_val_loss, total_val_accuracy, train_time_list, val_time_list, total_time_list)
     plotFigures(save_fig, model_path, total_train_loss, total_train_accuracy, total_val_loss, total_val_accuracy)
-    genReport(model, file, save_fig, test_loader, model_path, device, num_classes)
+#=====================================================================

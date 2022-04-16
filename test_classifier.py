@@ -32,17 +32,19 @@ def main():
     parser.add_argument('--save_fig'  , type = bool , default = True                                                         , help = 'Save Figures')
     parser.add_argument('--save_data' , type = bool , default = True                                                         , help = 'Save Data to CSV')
     parser.add_argument('--pretrained', type = bool , default = True                                                         , help = 'Use Pretrained Models (e.g True)')
-    parser.add_argument('--batch'     , type = int  , default = 32                                                           , help = 'Select Batch Size (e.g 32)')
-    parser.add_argument('--worker'    , type = int  , default = 4                                                            , help = 'Select Number of Workers (e.g 4)')
-    parser.add_argument('--imgsz'     , type = int  , default = 225                                                          , help = 'Select Input Image Size (e.g 225)')
-    parser.add_argument('--test_csv'  , type = str  , default = 'Input/Test_Classifier_Dataset.csv'                          , help = 'Load testing csv files')
-    parser.add_argument('--model_path', type = str  , default = 'OUTPUT/Models/alexnet/Train/Run0/classifier.pth'            , help = 'Load model path')
-    # parser.add_argument('--model_path', type = str  , default = 'OUTPUT/Models/efficientnet_b0/Train/Run0/classifier.pth'    , help = 'Load model path')
-    # parser.add_argument('--model_path', type = str  , default = 'OUTPUT/Models/mobilenet_v2/Train/Run0/classifier.pth'       , help = 'Load model path')
-    # parser.add_argument('--model_path', type = str  , default = 'OUTPUT/Models/resnet50/Train/Run0/classifier.pth'           , help = 'Load model path')
-    # parser.add_argument('--model_path', type = str  , default = 'OUTPUT/Models/shufflenet_v2_x1_0/Train/Run0/classifier.pth' , help = 'Load model path')
-    # parser.add_argument('--model_path', type = str  , default = 'OUTPUT/Models/squeezenet1_1/Train/Run0/classifier.pth'      , help = 'Load model path')
-    # parser.add_argument('--model_path', type = str  , default = 'OUTPUT/Models/vgg16/Train/Run0/classifier.pth'              , help = 'Load model path')
+    parser.add_argument('--jetson'    , type = bool , default = False                                                        , help = 'Currently using Jetson')
+    parser.add_argument('--batch'     , type = int  , default = 2                                                            , help = 'Select Batch Size (e.g 32)')
+    parser.add_argument('--worker'    , type = int  , default = 1                                                            , help = 'Select Number of Workers (e.g 4)')
+    parser.add_argument('--imgsz'     , type = int  , default = 64                                                           , help = 'Select Input Image Size (e.g 225)')
+    parser.add_argument('--test_csv'  , type = str  , default = 'Test_Classifier_Dataset.csv'                                , help = 'Load testing csv files')
+    parser.add_argument('--model_path', type = str  , default = 'Run0'                                                       , help = 'Load model path')
+    parser.add_argument('--model_name', type = str  , default = 'alexnet'                                                    , help = 'model_name')
+    # parser.add_argument('--model_name', type = str  , default = 'efficientnet_b0'                                            , help = 'model_name')
+    # parser.add_argument('--model_name', type = str  , default = 'mobilenet_v2'                                               , help = 'model_name')
+    # parser.add_argument('--model_name', type = str  , default = 'resnet50'                                                   , help = 'model_name')
+    # parser.add_argument('--model_name', type = str  , default = 'shufflenet_v2_x1_0'                                         , help = 'model_name')
+    # parser.add_argument('--model_name', type = str  , default = 'squeezenet1_1'                                              , help = 'model_name')
+    # parser.add_argument('--model_name', type = str  , default = 'vgg16'                                                      , help = 'model_name')
 
     args = parser.parse_args()
 
@@ -50,17 +52,17 @@ def main():
     now = datetime.now()
     date_time = now.strftime("%m-%d-%Y_%H.%M.%S")
 
-    model_file_path = args.model_path
-    model_name      = model_file_path.split("/")
-    model_name      = model_name[2]
+    model_name      = args.model_name
+    model_file_path = os.path.join("OUTPUT", "Models",model_name, "Train", args.model_path, "classifier.pth")
+    print(model_file_path)
 
     cont = True
     count = 0
-    model_path = os.path.join("OUTPUT\Models", model_name, "Test\Run" + str(count))
+    model_path = os.path.join("OUTPUT", "Models", model_name, "Test", "Run" + str(count))
     while cont:
         if(os.path.isdir(model_path)):
             count += 1
-            model_path = os.path.join("OUTPUT\Models", model_name, "Test\Run" + str(count))
+            model_path = os.path.join("OUTPUT", "Models", model_name, "Test", "Run" + str(count))
         else:
             os.mkdir(model_path)
             cont = False
@@ -74,7 +76,8 @@ def main():
     print(args,"\n")
     file.write(str(args) + "\n")
 
-    skin_df_test = pd.read_csv(args.test_csv, index_col = 0)
+    test_csv = os.path.join("INPUT", args.test_csv)
+    skin_df_test = pd.read_csv(test_csv, index_col = 0)
     skin_df_test = skin_df_test.reset_index()
     number_Cell_Type = 7
 

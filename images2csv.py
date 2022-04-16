@@ -43,7 +43,8 @@ def eda(skin_df, save_fig, number_Cell_Type):
     plt.title('Cell Type Count', fontsize = 15)
     skin_df['cell_type'].value_counts().plot.bar()
     if (save_fig):
-        fig.savefig('OUTPUT\Figures\Cell_Type_Count.png', bbox_inches = 'tight')
+        file_name = os.path.join("OUTPUT","Figures","Cell_Type_Count.png")
+        fig.savefig(file_name, bbox_inches = 'tight')
     fig.clf()
     plt.close(fig)
 
@@ -59,7 +60,8 @@ def eda(skin_df, save_fig, number_Cell_Type):
     plt.subplot(1,2,2)
     skin_df['dx_type'].value_counts().plot.pie(autopct="%1.1f%%")
     if (save_fig):
-        fig.savefig('OUTPUT\Figures\DX&DX_Type_Count.png', bbox_inches = 'tight')
+        file_name = os.path.join("OUTPUT","Figures","DX&DX_Type_Count.png")
+        fig.savefig(file_name, bbox_inches = 'tight')
     fig.clf()
     plt.close(fig)
 
@@ -68,7 +70,8 @@ def eda(skin_df, save_fig, number_Cell_Type):
     plt.title('Localization Count', fontsize = 15)
     skin_df['localization'].value_counts().plot.bar()
     if (save_fig):
-        fig.savefig('OUTPUT\Figures\Localization_Count.png', bbox_inches = 'tight')
+        file_name = os.path.join("OUTPUT","Figures","Localization_Count.png")
+        fig.savefig(file_name, bbox_inches = 'tight')
     fig.clf()
     plt.close(fig)
 
@@ -77,7 +80,8 @@ def eda(skin_df, save_fig, number_Cell_Type):
     plt.title('Age Histogram', fontsize = 15)
     skin_df['age'].hist(bins = 40)
     if (save_fig):
-        fig.savefig('OUTPUT\Figures\Age_Histogram.png', bbox_inches = 'tight')
+        file_name = os.path.join("OUTPUT","Figures","Age_Histogram.png")
+        fig.savefig(file_name, bbox_inches = 'tight')
     fig.clf()
     plt.close(fig)
 
@@ -86,7 +90,8 @@ def eda(skin_df, save_fig, number_Cell_Type):
     plt.title('Gender Count', fontsize = 15)
     skin_df['sex'].value_counts().plot.bar()
     if (save_fig):
-        fig.savefig('OUTPUT\Figures\Gender_Count.png', bbox_inches = 'tight')
+        file_name = os.path.join("OUTPUT","Figures","Gender_Count.png")
+        fig.savefig(file_name, bbox_inches = 'tight')
     fig.clf()
     plt.close(fig)
 
@@ -95,7 +100,8 @@ def eda(skin_df, save_fig, number_Cell_Type):
     plt.title('Age vs Cell Type', fontsize = 15)
     sns.scatterplot(x = 'age', y = 'cell_type', data = skin_df)
     if (save_fig):
-        fig.savefig('OUTPUT\Figures\Age_vs_Cell_Type_Scatter.png', bbox_inches = 'tight')
+        file_name = os.path.join("OUTPUT","Figures","Age_vs_Cell_Type_Scatter.png")
+        fig.savefig(file_name, bbox_inches = 'tight')
     fig.clf()
     plt.close(fig)
 
@@ -104,7 +110,8 @@ def eda(skin_df, save_fig, number_Cell_Type):
     plt.title('Localization vs Geneder', fontsize = 15)
     sns.countplot(y='localization', hue = 'sex', data = skin_df)
     if (save_fig):
-        fig.savefig('OUTPUT\Figures\Localization_vs_Gender.png', bbox_inches = 'tight')
+        file_name = os.path.join("OUTPUT","Figures","Localization_vs_Gender.png")
+        fig.savefig(file_name, bbox_inches = 'tight')
     fig.clf()
     plt.close(fig)
 
@@ -113,7 +120,8 @@ def eda(skin_df, save_fig, number_Cell_Type):
     plt.title('Localization VS Cell Type',fontsize = 15)
     sns.countplot(y='localization', hue ='cell_type',data = skin_df)
     if (save_fig):
-        fig.savefig('OUTPUT\Figures\Localization_vs_Cell_Type.png', bbox_inches = 'tight')
+        file_name = os.path.join("OUTPUT","Figures","Localization_vs_Cell_Type.png")
+        fig.savefig(file_name, bbox_inches = 'tight')
     fig.clf()
     plt.close(fig)
 
@@ -122,7 +130,8 @@ def eda(skin_df, save_fig, number_Cell_Type):
     plt.title('AGE VS CELL TYPE', fontsize = 15)
     sns.countplot(y='age', hue = 'cell_type', data = skin_df)
     if (save_fig):
-        fig.savefig('OUTPUT\Figures\Age_vs_Cell_Type.png', bbox_inches = 'tight')
+        file_name = os.path.join("OUTPUT","Figures","Age_vs_Cell_Type.png")
+        fig.savefig(file_name, bbox_inches = 'tight')
     fig.clf()
     plt.close(fig)
 
@@ -131,7 +140,8 @@ def eda(skin_df, save_fig, number_Cell_Type):
     plt.title('GENDER VS CELL TYPE', fontsize = 15)
     sns.countplot(y='sex', hue = 'cell_type',data = skin_df)
     if (save_fig):
-        fig.savefig('OUTPUT\Figures\Gender_vs_Cell_Type.png', bbox_inches = 'tight')
+        file_name = os.path.join("OUTPUT","Figures","Gender_vs_Cell_Type.png")
+        fig.savefig(file_name, bbox_inches = 'tight')
     fig.clf()
     plt.close(fig)
 
@@ -144,7 +154,8 @@ def eda(skin_df, save_fig, number_Cell_Type):
             c_ax.imshow(c_row['image'])
             c_ax.axis('off')
     if (save_fig):
-        fig.savefig('OUTPUT\Figures\Image_Category_Samples.png')
+        file_name = os.path.join("OUTPUT","Figures","Image_Category_Samples.png")
+        fig.savefig(file_name, bbox_inches = 'tight')
     fig.clf()
     plt.close(fig)
 

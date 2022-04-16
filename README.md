@@ -22,7 +22,10 @@ Skin Disease Classifier using the HAM10000 dataset
 - pytorch
 - pandas
 - torchsummary
+- torch
+- torchvision
 - json
+- scipy
 
 ##  Dataset
 - HAM10000 dataset
@@ -74,27 +77,30 @@ Skin Disease Classifier using the HAM10000 dataset
     - mobilenet_v2
     - resnet50
     - shufflenet_v2_x1_0
+    - squeezenet1_1
     - vgg16
 
 # Get Started Easily
 ## Train Model
 ### NOTE: Change arguments as needed
-- python .\main --model alexnet
-- python .\main --model efficientnet_b0
-- python .\main --model mobilenet_v2
-- python .\main --model resnet50
-- python .\main --model shufflenet_v2_x1_0
-- python .\main --model vgg16
+- python3 .\main --model alexnet
+- python3 .\main --model efficientnet_b0
+- python3 .\main --model mobilenet_v2
+- python3 .\main --model resnet50
+- python3 .\main --model shufflenet_v2_x1_0
+- python3 .\main --model squeezenet1_1
+- python3 .\main --model vgg16
 
 ## Test Model
 ### NOTE: Change arguments as needed
-- python .\main --model alexnet            --model_path OUTPUT/Models/alexnet/Train/Run0/classifier.pth
-- python .\main --model efficientnet_b0    --model_path OUTPUT/Models/efficientnet_b0/Train/Run0/classifier.pth
-- python .\main --model mobilenet_v2       --model_path OUTPUT/Models/mobilenet_v2/Train/Run0/classifier.pth
-- python .\main --model resnet50           --model_path OUTPUT/Models/resnet50/Train/Run0/classifier.pth
-- python .\main --model shufflenet_v2_x1_0 --model_path OUTPUT/Models/shufflenet_v2_x1_0/Train/Run0/classifier.pth
-- python .\main --model vgg16              --model_path OUTPUT/Models/vgg16/Train/Run0/classifier.pth
-
+- python3 .\main --model alexnet            --model_path OUTPUT/Models/alexnet/Train/Run0/classifier.pth
+- python3 .\main --model efficientnet_b0    --model_path OUTPUT/Models/efficientnet_b0/Train/Run0/classifier.pth
+- python3 .\main --model mobilenet_v2       --model_path OUTPUT/Models/mobilenet_v2/Train/Run0/classifier.pth
+- python3 .\main --model resnet50           --model_path OUTPUT/Models/resnet50/Train/Run0/classifier.pth
+- python3 .\main --model shufflenet_v2_x1_0 --model_path OUTPUT/Models/shufflenet_v2_x1_0/Train/Run0/classifier.pth
+- python3 .\main --model squeezenet1_1      --model_path OUTPUT/Models/squeezenet1_1/Train/Run0/classifier.pth
+- python3 .\main --model vgg16              --model_path OUTPUT/Models/vgg16/Train/Run0/classifier.pth
+3
 # Evaluation
 - Manifold Representation (t-SNE)
 - Jetson Stats (jtop)L Power consumption, CPU/GPU Utilization, etc
@@ -131,6 +137,9 @@ Skin Disease Classifier using the HAM10000 dataset
             - Test/Run*
             - Train/Run*
         - shufflenet_v2_x1_0/
+            - Test/Run*
+            - Train/Run*
+        - squeezenet1_1/
             - Test/Run*
             - Train/Run*
         - vgg16/

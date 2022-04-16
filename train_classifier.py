@@ -37,9 +37,9 @@ def main():
     parser.add_argument('--epoch'     , type = int  , default = 50                                   , help = 'Select Epoch Size (e.g 50)')
     parser.add_argument('--batch'     , type = int  , default = 32                                   , help = 'Select Batch Size (e.g 32)')
     parser.add_argument('--worker'    , type = int  , default = 4                                    , help = 'Select Number of Workers (e.g 4)')
-    parser.add_argument('--imgsz'     , type = int  , default = 225                                  , help = 'Select Input Image Size (e.g 225)')
-    parser.add_argument('--train_csv' , type = str  , default = 'Input/Train_Classifier_Dataset.csv' , help = 'Load training csv files')
-    parser.add_argument('--val_csv'   , type = str  , default = 'Input/Val_Classifier_Dataset.csv'   , help = 'Load validation csv files')
+    parser.add_argument('--imgsz'     , type = int  , default = 64                                  , help = 'Select Input Image Size (e.g 225)')
+    parser.add_argument('--train_csv' , type = str  , default = 'Train_Classifier_Dataset.csv' , help = 'Load training csv files')
+    parser.add_argument('--val_csv'   , type = str  , default = 'Val_Classifier_Dataset.csv'   , help = 'Load validation csv files')
     parser.add_argument('--model'     , type = str  , default = 'alexnet'                                                    , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
     # parser.add_argument('--model'     , type = str  , default = 'efficientnet_b0'                                            , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
     # parser.add_argument('--model'     , type = str  , default = 'mobilenet_v2'                                               , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
@@ -56,11 +56,11 @@ def main():
 
     cont = True
     count = 0
-    model_path = os.path.join("OUTPUT\Models", args.model, "Train\Run" + str(count))
+    model_path = os.path.join("OUTPUT", "Models", args.model, "Train", "Run" + str(count))
     while cont:
         if(os.path.isdir(model_path)):
             count += 1
-            model_path = os.path.join("OUTPUT\Models\Train", args.model, "Train\Run" + str(count))
+            model_path = os.path.join("OUTPUT", "Models\Train", args.model, "Train", "Run" + str(count))
         else:
             os.mkdir(model_path)
             cont = False
@@ -74,9 +74,11 @@ def main():
     print(args,"\n")
     file.write(str(args) + "\n")
 
-    skin_df_train = pd.read_csv(args.train_csv, index_col = 0)
+    train_csv = os.path.join("INPUT", args.train_csv)
+    skin_df_train = pd.read_csv(train_csv, index_col = 0)
     skin_df_train = skin_df_train.reset_index()
-    skin_df_val = pd.read_csv(args.val_csv, index_col = 0)
+    val_csv = os.path.join("INPUT", args.val_csv)
+    skin_df_val = pd.read_csv(val_csv, index_col = 0)
     skin_df_val = skin_df_val.reset_index()
 
     number_Cell_Type = 7

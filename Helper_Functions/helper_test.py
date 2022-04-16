@@ -343,7 +343,7 @@ def plot_tsne(run_images_path, save_fig, original, y_output, lesion_id_dict, num
 #---------------------------------------------------------------------
 def calc_inference_time(file, model, device, dummy_input, test_loader):
     starter, ender  = torch.cuda.Event(enable_timing = True), torch.cuda.Event(enable_timing = True)
-    repetitions     = 10
+    repetitions     = 3
     batch_time_list = []
     total_images    = 0
 
@@ -412,6 +412,7 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
     num_worker      = args.worker
     input_size      = args.imgsz
     input_size      = args.imgsz
+    jetson          = args.jetson
     norm_mean       = (0.49139968, 0.48215827, 0.44653124)
     norm_std        = (0.24703233, 0.24348505, 0.26158768)
     num_classes     = number_Cell_Type
@@ -432,6 +433,8 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
     file.write("Number of Workers:  {} \n".format(num_worker))
     print("Number of Classes:  {}".format(num_classes))
     file.write("Number of Classes:  {}".format(num_classes))
+    print("Jetson:             {}".format(jetson))
+    file.write("Jetson:             {}".format(jetson))
     print("Image Size:         {} by {}".format(input_size, input_size))
     file.write("Image Size:         {} by {} \n".format(input_size, input_size))
     print("Normalized Mean:   ", norm_mean)
@@ -487,6 +490,7 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
         correctly_identified = 0
         total_images = 0
         for batch, (images, labels) in enumerate(test_loader):
+            print("Batch: ", batch)
             images_per_batch = images.size(0)
             images   = images.to(device)
             labels   = labels.to(device)
@@ -558,10 +562,10 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
     plot_roc_auc(file, save_data, save_fig, model_path, run_images_path, y_label, y_pred, y_pred_auc, y_true, lesion_id_dict)
 
     # T-SNE
-    original_tsne = visual_tsne(file, save_data, save_fig, model_path, run_images_path, original, y_pred, y_label, lesion_id_dict, 'original', colors_dict)
-    y_output_tsne = visual_tsne(file, save_data, save_fig, model_path, run_images_path, y_output, y_pred, y_label, lesion_id_dict, 'y_output', colors_dict)
-
-    plot_tsne(run_images_path, save_fig, original_tsne, y_output_tsne, lesion_id_dict, num_classes)
+    if(jetson):
+        original_tsne = visual_tsne(file, save_data, save_fig, model_path, run_images_path, original, y_pred, y_label, lesion_id_dict, 'original', colors_dict)
+        y_output_tsne = visual_tsne(file, save_data, save_fig, model_path, run_images_path, y_output, y_pred, y_label, lesion_id_dict, 'y_output', colors_dict)
+        plot_tsne(run_images_path, save_fig, original_tsne, y_output_tsne, lesion_id_dict, num_classes)
 
     # Calculate Inference Time
     calc_inference_time(file, model, device, dummy_input, test_loader)

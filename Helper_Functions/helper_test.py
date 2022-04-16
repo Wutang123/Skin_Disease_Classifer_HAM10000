@@ -6,9 +6,9 @@
 # Professor:     Professor Haiyan Hu
 # Name:          Justin Wu
 # Project:       Skin Disease Classifier
-# Function:      models.py
+# Function:      helper_test.py
 # Create:        01/22/22
-# Description:   Train, Validate, and Test dataset on models
+# Description:   Helper function used to test classifier
 #---------------------------------------------------------------------
 
 # IMPORTS:
@@ -397,8 +397,8 @@ def calc_inference_time(file, model, device, dummy_input, test_loader):
 
 
 #---------------------------------------------------------------------
-# Function:    model()
-# Description: Train and Validate dataset on multiple models
+# Function:    helper_test()
+# Description: Helper function used to test classifier
 #---------------------------------------------------------------------
 def helper_test(args, file, model_path, model_file_path, model_name, skin_df_test, number_Cell_Type, lesion_id_dict, lesion_type_dict, colors_dict):
 

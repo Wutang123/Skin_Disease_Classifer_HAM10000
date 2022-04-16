@@ -6,9 +6,9 @@
 # Professor:     Professor Haiyan Hu
 # Name:          Justin Wu
 # Project:       Skin Disease Classifier
-# Function:      main.py
+# Function:      test_classifier.py
 # Create:        01/17/22
-# Description:   Main function to call other functions
+# Description:   Main test classifier functions
 #---------------------------------------------------------------------
 
 # IMPORTS:

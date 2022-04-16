@@ -7,9 +7,9 @@
 # Professor:     Professor Haiyan Hu
 # Name:          Justin Wu
 # Project:       Skin Disease Classifier
-# Function:      find_dict_type.py
+# Function:      find_model.py
 # Create:        04/12/22
-# Description:   Pass dictionaries
+# Description:   Pass back classifier model
 #---------------------------------------------------------------------
 # Pytorch libraries
 from torch import nn
@@ -20,7 +20,6 @@ from torchvision import models
 # Description: Select model and update last layer
 #---------------------------------------------------------------------
 def find_model(model_name, use_pretrained, num_classes, device):
-    # Models: alexnet, vgg16, resnet50, squeezenet1_1, shufflenet_v2_x1_0, mobilenet_v2, efficientnet_b0
 
     model = None
     num_ftrs = 0

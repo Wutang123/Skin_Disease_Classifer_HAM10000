@@ -6,7 +6,8 @@ Skin Disease Classifier using the HAM10000 dataset
 2. Used Jetson Nano to determine how well these trained models perform on an edge device
 
 ## Prerequisite
-1. Download HAM10000 dataset. See https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DBW86T
+1. Download HAM10000 dataset.
+   See https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DBW86T
 2. Upload dataset in the INPUT/HAM10000 directory
 3. Download listed libraries
 
@@ -21,6 +22,7 @@ Skin Disease Classifier using the HAM10000 dataset
 - pytorch
 - pandas
 - torchsummary
+- json
 
 ##  Dataset
 - HAM10000 dataset
@@ -31,37 +33,37 @@ Skin Disease Classifier using the HAM10000 dataset
 
 ## Exploratory Data Analysis (EDA)
 ### Age Histogram
-<img src="OUTPUT/Figures/Age_Histogram.png" width="128"/>
+<img src="OUTPUT/Figures/Age_Histogram.png" width="300"/>
 
 ### Age vs Cell Type
-<img src="OUTPUT/Figures/Age_vs_Cell_Type.png" width="128"/>
+<img src="OUTPUT/Figures/Age_vs_Cell_Type.png" width="300"/>
 
 ### Age vs Cell Type
-<img src="OUTPUT/Figures/Age_vs_Cell_Type_Scatter.png" width="128"/>
+<img src="OUTPUT/Figures/Age_vs_Cell_Type_Scatter.png" width="300"/>
 
 ### Cell Type Count
-<img src="OUTPUT/Figures/Cell_Type_Count.png" width="128"/>
+<img src="OUTPUT/Figures/Cell_Type_Count.png" width="300"/>
 
 ### DX & DX Type Count
-<img src="OUTPUT/Figures/DX&DX_Type_Count.png" width="128"/>
+<img src="OUTPUT/Figures/DX&DX_Type_Count.png" width="300"/>
 
 ### Gender Count
-<img src="OUTPUT/Figures/Gender_Count.png" width="128"/>
+<img src="OUTPUT/Figures/Gender_Count.png" width="300"/>
 
 ### Gender vs Cell Type
-<img src="OUTPUT/Figures/Gender_vs_Cell_Type.png" width="128"/>
+<img src="OUTPUT/Figures/Gender_vs_Cell_Type.png" width="300"/>
 
 ### Image Category Samples
-<img src="OUTPUT/Figures/Image_Category_Samples.png" width="128"/>
+<img src="OUTPUT/Figures/Image_Category_Samples.png" width="300"/>
 
 ### Localization Count
-<img src="OUTPUT/Figures/Localization_Count.png" width="128"/>
+<img src="OUTPUT/Figures/Localization_Count.png" width="300"/>
 
 ### Localization vs Cell Type
-<img src="OUTPUT/Figures/Localization_vs_Cell_Type.png" width="128"/>
+<img src="OUTPUT/Figures/Localization_vs_Cell_Type.png" width="300"/>
 
 ### Localization vs Gender
-<img src="OUTPUT/Figures/Localization_vs_Gender.png" width="128"/>
+<img src="OUTPUT/Figures/Localization_vs_Gender.png" width="300"/>
 
 # Classifier Models
 - Input: 128 by 128 image
@@ -117,23 +119,23 @@ Skin Disease Classifier using the HAM10000 dataset
     - Figures/: Sample figures collecturing during Exploratory Data Analysis (EDA)
     - Models/: Train and test run data for each model
         - alexnet/
-            - Test/
-            - Train/
+            - Test/Run*
+            - Train/Run*
         - efficientnet_b0/
-            - Test/
-            - Train/
+            - Test/Run*
+            - Train/Run*
         - mobilenet_v2/
-            - Test/
-            - Train/
+            - Test/Run*
+            - Train/Run*
         - resnet50/
-            - Test/
-            - Train/
+            - Test/Run*
+            - Train/Run*
         - shufflenet_v2_x1_0/
-            - Test/
-            - Train/
+            - Test/Run*
+            - Train/Run*
         - vgg16/
-            - Test/
-            - Train/
+            - Test/Run*
+            - Train/Run*
 - .gitignore: Ignore files
 - images2csv.py: Function used to create train, validation, and test csv files
 - jetson_stat_logger.py: Function used to collect jetson stats during testing

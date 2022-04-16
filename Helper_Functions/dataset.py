@@ -6,9 +6,9 @@
 # Professor:     Professor Haiyan Hu
 # Name:          Justin Wu
 # Project:       Skin Disease Classifier
-# Function:      models.py
-# Create:        01/22/22
-# Description:   Train, Validate, and Test dataset on models
+# Function:      dataset.py
+# Create:        04/16/22
+# Description:   Function used for dataset loading
 #---------------------------------------------------------------------
 
 # IMPORTS:

@@ -6,9 +6,9 @@
 # Professor:     Professor Haiyan Hu
 # Name:          Justin Wu
 # Project:       Skin Disease Classifier
-# Function:      processData.py
+# Function:      helper_train.py
 # Create:        01/17/22
-# Description:   Function used to gather HAM1000 dataset and process data
+# Description:   Helper function used to train and validate classifier
 #---------------------------------------------------------------------
 
 # IMPORTS:
@@ -207,8 +207,8 @@ def plotFigures(save_fig, model_path, total_train_loss, total_train_accuracy, to
 
 
 #---------------------------------------------------------------------
-# Function:    proccess_Data()
-# Description: Function to process Data.
+# Function:    helper_train()
+# Description: Helper function used to train and validate classifier
 #---------------------------------------------------------------------
 def helper_train(args, file, model_path, skin_df_train, skin_df_val, number_Cell_Type):
 

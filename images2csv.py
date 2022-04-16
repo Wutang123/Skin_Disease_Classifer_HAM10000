@@ -32,7 +32,7 @@ from sklearn.model_selection import train_test_split
 # FUNCTIONS:
 #---------------------------------------------------------------------
 # Function:    eda()
-# Description: Exploratory Data Analysis.
+# Description: Exploratory Data Analysis
 #---------------------------------------------------------------------
 def eda(skin_df, save_fig, number_Cell_Type):
 

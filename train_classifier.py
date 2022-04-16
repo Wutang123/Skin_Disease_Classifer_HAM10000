@@ -40,13 +40,13 @@ def main():
     parser.add_argument('--imgsz'     , type = int  , default = 225                                  , help = 'Select Input Image Size (e.g 225)')
     parser.add_argument('--train_csv' , type = str  , default = 'Input/Train_Classifier_Dataset.csv' , help = 'Load training csv files')
     parser.add_argument('--val_csv'   , type = str  , default = 'Input/Val_Classifier_Dataset.csv'   , help = 'Load validation csv files')
-    # parser.add_argument('--model'     , type = str  , default = 'alexnet'                                                    , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
+    parser.add_argument('--model'     , type = str  , default = 'alexnet'                                                    , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
     # parser.add_argument('--model'     , type = str  , default = 'efficientnet_b0'                                            , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
     # parser.add_argument('--model'     , type = str  , default = 'mobilenet_v2'                                               , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
     # parser.add_argument('--model'     , type = str  , default = 'resnet50'                                                   , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
     # parser.add_argument('--model'     , type = str  , default = 'shufflenet_v2_x1_0'                                         , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
     # parser.add_argument('--model'     , type = str  , default = 'squeezenet1_1'                                              , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
-    parser.add_argument('--model'     , type = str  , default = 'vgg16'                                                      , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
+    # parser.add_argument('--model'     , type = str  , default = 'vgg16'                                                      , help = 'alexnet, efficientnet_b0, mobilenet_v2, resnet50, shufflenet_v2_x1_0, squeezenet1_1, vgg16')
 
     args = parser.parse_args()
 

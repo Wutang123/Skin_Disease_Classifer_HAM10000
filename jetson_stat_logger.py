@@ -6,9 +6,9 @@
 # Professor:     Professor Haiyan Hu
 # Name:          Justin Wu
 # Project:       Skin Disease Classifier
-# Function:      main.py
-# Create:        01/17/22
-# Description:   Main function to call other functions
+# Function:      jetson_stat_logger.py
+# Create:        04/16/22
+# Description:   Function used to collect jetson stat data
 #---------------------------------------------------------------------
 
 # IMPORTS:
@@ -40,8 +40,9 @@ def main():
     jetson_logfile = os.path.join("OUTPUT\Models", args.model, "Test", "jetson_stat_log_" + date_time + ".csv")
 
     # Collect jetson stats while running classifier test
-    with jtop() as jetson:
-            with open(jetson_logfile, 'w') as csvfile:
+    try:
+        with jtop() as jetson:
+            with open(args.file, 'w') as csvfile:
                 stats = jetson.stats
                 writer = csv.DictWriter(csvfile, fieldnames=stats.keys())
                 writer.writeheader()
@@ -49,6 +50,12 @@ def main():
                 while jetson.ok():
                     stats = jetson.stats
                     writer.writerow(stats)
+    except JtopException as e:
+        print(e)
+    except KeyboardInterrupt:
+        print("Closed with CTRL-C")
+    except IOError:
+        print("I/O error")
 
 # MODULES:
 if __name__ == "__main__":

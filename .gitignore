@@ -1,13 +1,37 @@
 # HAM10000 Dataset
-INPUT/
+INPUT/HAM10000/HAM1000*
+INPUT/HAM10000/ISIC2018_Task3*
+INPUT/HAM10000/Zip
+
 OUTPUT/Figures/Archive
-OUTPUT/Models/alexnet/*
-OUTPUT/Models/efficientnet_b0/*
-OUTPUT/Models/mobilenet_v2/*
-OUTPUT/Models/resnet50/*
-OUTPUT/Models/shufflenet_v2_x1_0/*
-OUTPUT/Models/squeezenet1_1/*
-OUTPUT/Models/vgg16/*
+
+OUTPUT/Models/alexnet/Archive
+OUTPUT/Models/alexnet/Test/Run*
+OUTPUT/Models/alexnet/Train/Run*
+
+OUTPUT/Models/efficientnet_b0/Archive
+OUTPUT/Models/efficientnet_b0/Test/Run*
+OUTPUT/Models/efficientnet_b0/Train/Run*
+
+OUTPUT/Models/mobilenet_v2/Archive
+OUTPUT/Models/mobilenet_v2/Test/Run*
+OUTPUT/Models/mobilenet_v2/Train/Run*
+
+OUTPUT/Models/resnet50/Archive
+OUTPUT/Models/resnet50/Test/Run*
+OUTPUT/Models/resnet50/Train/Run*
+
+OUTPUT/Models/shufflenet_v2_x1_0/Archive
+OUTPUT/Models/shufflenet_v2_x1_0/Test/Run*
+OUTPUT/Models/shufflenet_v2_x1_0/Train/Run*
+
+OUTPUT/Models/squeezenet1_1/Archive
+OUTPUT/Models/squeezenet1_1/Test/Run*
+OUTPUT/Models/squeezenet1_1/Train/Run*
+
+OUTPUT/Models/vgg16/Archive
+OUTPUT/Models/vgg16/Test/Run*
+OUTPUT/Models/vgg16/Train/Run*
 Archive/*
 
 # Byte-compiled / optimized / DLL files

@@ -93,13 +93,13 @@ Skin Disease Classifier using the HAM10000 dataset
 
 ## Test Model
 ### NOTE: Change arguments as needed
-- python3 .\main --model alexnet            --model_path OUTPUT/Models/alexnet/Train/Run0/classifier.pth
-- python3 .\main --model efficientnet_b0    --model_path OUTPUT/Models/efficientnet_b0/Train/Run0/classifier.pth
-- python3 .\main --model mobilenet_v2       --model_path OUTPUT/Models/mobilenet_v2/Train/Run0/classifier.pth
-- python3 .\main --model resnet50           --model_path OUTPUT/Models/resnet50/Train/Run0/classifier.pth
-- python3 .\main --model shufflenet_v2_x1_0 --model_path OUTPUT/Models/shufflenet_v2_x1_0/Train/Run0/classifier.pth
-- python3 .\main --model squeezenet1_1      --model_path OUTPUT/Models/squeezenet1_1/Train/Run0/classifier.pth
-- python3 .\main --model vgg16              --model_path OUTPUT/Models/vgg16/Train/Run0/classifier.pth
+- python3 .\main --model alexnet            --model_name alexnet --model_path Run0
+- python3 .\main --model efficientnet_b0    --model_name efficientnet_b0 --model_path Run0
+- python3 .\main --model mobilenet_v2       --model_name mobilenet_v2 --model_path Run0
+- python3 .\main --model resnet50           --model_name resnet50 --model_path Run0
+- python3 .\main --model shufflenet_v2_x1_0 --model_name shufflenet_v2_x1_0 --model_path Run0
+- python3 .\main --model squeezenet1_1      --model_name squeezenet1_1 --model_path Run0
+- python3 .\main --model vgg16              --model_name vgg16 --model_path Run0
 3
 # Evaluation
 - Manifold Representation (t-SNE)

@@ -53,8 +53,7 @@ def main():
     date_time = now.strftime("%m-%d-%Y_%H.%M.%S")
 
     model_name      = args.model_name
-    model_file_path = os.path.join("OUTPUT", "Models",model_name, "Train", args.model_path, "classifier.pth")
-    print(model_file_path)
+    model_file_path = os.path.join("OUTPUT", "Models", model_name, "Train", args.model_path, "classifier.pth")
 
     cont = True
     count = 0

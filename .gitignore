@@ -4,6 +4,7 @@ INPUT/HAM10000/ISIC2018_Task3*
 INPUT/HAM10000/Zip
 
 OUTPUT/Figures/Archive
+OUTPUT/Jetson_Data/*
 
 OUTPUT/Models/alexnet/Archive
 OUTPUT/Models/alexnet/Test/Run*

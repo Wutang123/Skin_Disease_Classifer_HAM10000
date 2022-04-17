@@ -462,17 +462,18 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
     test_loader = DataLoader(test_set, batch_size = batch, shuffle = False, num_workers = num_worker, drop_last = True)
 
     # Verify Tensor Size, should be [batch_size, channel_size, image_height, image_width] (e.g [32, 3, 225, 225])
-    first_test = 1
-    test_size = None
-    for i, (images, labels) in enumerate(test_loader):
-        if(first_test):
-            test_size = images.shape
-            first_test = 0
-        else:
-            if(images.shape != test_size):
-                print("ERROR: Mismatch test_loader Size!")
-                file.write("ERROR: Mismatch test_loader Size!\n")
-                sys.exit()
+    if(not jetson):
+        first_test = 1
+        test_size = None
+        for i, (images, labels) in enumerate(test_loader):
+            if(first_test):
+                test_size = images.shape
+                first_test = 0
+            else:
+                if(images.shape != test_size):
+                    print("ERROR: Mismatch test_loader Size!")
+                    file.write("ERROR: Mismatch test_loader Size!\n")
+                    sys.exit()
 
     model.eval()
 
@@ -490,7 +491,11 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
         correctly_identified = 0
         total_images = 0
         for batch, (images, labels) in enumerate(test_loader):
-            print("Batch: ", batch)
+
+            if (batch == 0) or (batch % 25 == 0):
+                print("Batch: ", batch)
+                print("*" * 5)
+
             images_per_batch = images.size(0)
             images   = images.to(device)
             labels   = labels.to(device)
@@ -519,6 +524,7 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
                 total_images += 1
                 correctly_identified += int(labels[i] == max_index)
 
+        print()
         print("Correctly identified = ", correctly_identified, " Total_images = ", total_images, " Accuracy = ", (float(correctly_identified)/total_images) * 100, "\n")
         file.write("Correctly identified = " + str(correctly_identified) + " Total_images = " + str(total_images) + " Accuracy = " + str((float(correctly_identified)/total_images) * 100) + "\n")
 
@@ -562,7 +568,7 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
     plot_roc_auc(file, save_data, save_fig, model_path, run_images_path, y_label, y_pred, y_pred_auc, y_true, lesion_id_dict)
 
     # T-SNE
-    if(jetson):
+    if(not jetson):
         original_tsne = visual_tsne(file, save_data, save_fig, model_path, run_images_path, original, y_pred, y_label, lesion_id_dict, 'original', colors_dict)
         y_output_tsne = visual_tsne(file, save_data, save_fig, model_path, run_images_path, y_output, y_pred, y_label, lesion_id_dict, 'y_output', colors_dict)
         plot_tsne(run_images_path, save_fig, original_tsne, y_output_tsne, lesion_id_dict, num_classes)

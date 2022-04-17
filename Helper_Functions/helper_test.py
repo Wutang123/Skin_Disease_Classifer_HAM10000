@@ -488,7 +488,7 @@ def helper_test(args, file, model_path, model_file_path, model_name, jetson_logf
                 total_images += 1
                 correctly_identified += int(labels[i] == max_index)
 
-            break
+            # break
 
         print()
         print("Correctly identified = ", correctly_identified, " Total_images = ", total_images, " Accuracy = ", (float(correctly_identified)/total_images) * 100, "\n")

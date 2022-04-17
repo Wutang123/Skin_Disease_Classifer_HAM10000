@@ -245,7 +245,7 @@ def helper_train(args, file, model_path, skin_df_train, skin_df_val, number_Cell
     print("Epoch Number:       {}".format(epoch_num))
     file.write("Epoch Number:       {} \n".format(epoch_num))
     print("Number of Classes:  {}".format(num_classes))
-    file.write("Number of Classes:  {}".format(num_classes))
+    file.write("Number of Classes:  {} \n".format(num_classes))
     print("Image Size:         {} by {}".format(input_size, input_size))
     file.write("Image Size:         {} by {} \n".format(input_size, input_size))
     print("Normalized Mean:   ", norm_mean)

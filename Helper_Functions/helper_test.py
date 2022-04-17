@@ -378,9 +378,9 @@ def helper_test(args, file, model_path, model_file_path, model_name, jetson_logf
     print("Number of Workers:  {}".format(num_worker))
     file.write("Number of Workers:  {} \n".format(num_worker))
     print("Number of Classes:  {}".format(num_classes))
-    file.write("Number of Classes:  {}".format(num_classes))
+    file.write("Number of Classes:  {} \n".format(num_classes))
     print("Jetson:             {}".format(jetson))
-    file.write("Jetson:             {}".format(jetson))
+    file.write("Jetson:             {} \n".format(jetson))
     print("Image Size:         {} by {}".format(input_size, input_size))
     file.write("Image Size:         {} by {} \n".format(input_size, input_size))
     print("Normalized Mean:   ", norm_mean)
@@ -391,7 +391,7 @@ def helper_test(args, file, model_path, model_file_path, model_name, jetson_logf
     # Define the device (use GPU if avaliable)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Device Used:       ", device, "\n")
-    file.write("Device Used:        " + str(device) + "\n")
+    file.write("Device Used:        " + str(device) + "\n\n")
 
     # Check to see if we load a trained model
     model = None

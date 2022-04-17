@@ -1,0 +1,17 @@
+sftp wu@192.168.1.42 
+
+cd Desktop/Code/Skin_Disease_Classifer_HAM10000/OUTPUT/Models/alexnet/Train/
+cd Desktop/Code/Skin_Disease_Classifer_HAM10000/OUTPUT/Models/efficientnet_b0/Train/
+cd Desktop/Code/Skin_Disease_Classifer_HAM10000/OUTPUT/Models/mobilenet_v2/Train/
+cd Desktop/Code/Skin_Disease_Classifer_HAM10000/OUTPUT/Models/resnet50/Train/
+cd Desktop/Code/Skin_Disease_Classifer_HAM10000/OUTPUT/Models/shufflenet_v2_x1_0/Train/
+cd Desktop/Code/Skin_Disease_Classifer_HAM10000/OUTPUT/Models/squeezenet1_1/Train/
+cd Desktop/Code/Skin_Disease_Classifer_HAM10000/OUTPUT/Models/vgg16/Train/
+
+put -rf Run0
+get -rf Run0
+
+python3 jetson_stat_logger.py
+python3 test_classifier.py
+
+sudo systemctl restart jetson_stats.service

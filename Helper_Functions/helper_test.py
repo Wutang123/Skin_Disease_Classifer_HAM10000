@@ -70,7 +70,9 @@ def plot_confusion_matrix(file, target_names, save_fig, model_path, y_label, y_p
     for i in range(len(target_names)):
         print(target_names[i], ": ", round(class_accuracy[i],2), "%")
         file.write(target_names[i] + "=" + str(round(class_accuracy[i],2)) + "% \n")
-    file.write("\n\n")
+
+    print()
+    file.write("\n")
 
 
 
@@ -148,9 +150,6 @@ def plot_roc_auc(file, save_data, save_fig, model_path, run_images_path, y_label
         fig_all.savefig(save_path, bbox_inches = 'tight')
     fig_all.clf()
     plt.close(fig_all)
-
-    print()
-    file.write("\n")
 
 
 
@@ -498,7 +497,6 @@ def helper_test(args, file, model_path, model_file_path, model_name, jetson_logf
     mean_batch_time  = total_batch_time / total_images
     std_batch_time   = np.std(total_batch_time)
 
-    print()
     file.write("\n")
     print("total_images:              {}".format(total_images))
     file.write("total_images:              {}\n".format(total_images))
@@ -508,6 +506,8 @@ def helper_test(args, file, model_path, model_file_path, model_name, jetson_logf
     file.write("mean_inference_time(sec):  {}\n".format(mean_batch_time))
     print("std_inference_time(sec):   {}".format(std_batch_time))
     file.write("std_inference_time(sec):   {}\n".format(std_batch_time))
+    print()
+    file.write("\n")
 
     original   = original.numpy()
     y_output   = y_output.numpy()
@@ -547,7 +547,7 @@ def helper_test(args, file, model_path, model_file_path, model_name, jetson_logf
 
     # Classification Report
     report = classification_report(y_label, y_pred, target_names = target_names)
-    print("Report: \n", report, "\n")
+    print("Report: \n", report)
     file.write("Report: \n" + report + "\n")
 
     # ROC and ROC-AUC Score

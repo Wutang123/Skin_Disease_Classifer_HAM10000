@@ -24,6 +24,7 @@ import os
 import seaborn as sns
 import csv
 import pandas as pd
+from jtop import jtop, JtopException
 
 # sklearn libraries
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, roc_auc_score
@@ -337,70 +338,12 @@ def plot_tsne(run_images_path, save_fig, original, y_output, lesion_id_dict, num
     print("Completed t-SNE plots...\n")
 
 
-#---------------------------------------------------------------------
-# Function:    calc_inference_time()
-# Description: Calculates Inference Time
-#---------------------------------------------------------------------
-def calc_inference_time(file, model, device, dummy_input, test_loader):
-    starter, ender  = torch.cuda.Event(enable_timing = True), torch.cuda.Event(enable_timing = True)
-    repetitions     = 3
-    batch_time_list = []
-    total_images    = 0
-
-    # Warm up GPU
-    print("Warming up GPU...")
-    file.write("Warming up GPU...\n")
-    for i in range(1):
-        outputs  = model(dummy_input)
-    print("Warming up completed...")
-    file.write("Warming up completed...\n")
-
-    with torch.no_grad():
-        for rep in range(repetitions):
-            batch_time   = 0
-            batch_images = 0
-            for batch, (images, labels) in enumerate(test_loader):
-                images_per_batch = images.size(0)
-                images   = images.to(device)
-                starter.record()
-                outputs  = model(images)
-                ender.record()
-
-                # Wait for GPU sync
-                torch.cuda.synchronize()
-                curr_time = starter.elapsed_time(ender)
-
-                batch_time_list.append(curr_time)
-                total_images += images_per_batch
-                batch_time   += curr_time
-                batch_images += images_per_batch
-            # print("batch_time: ", batch_time)
-            # print("batch_images: ", batch_images)
-            print("Repetition: {}, current_batch_inference_time(sec): {}".format(rep, (batch_time/batch_images)))
-            file.write("Repetition: {}, current_batch_inference_time(sec): {}\n".format(rep, (batch_time/batch_images)))
-
-    total_batch_time = np.sum(batch_time_list)
-    mean_batch_time  = total_batch_time / total_images
-    std_batch_time   = np.std(total_batch_time)
-
-    print()
-    file.write("\n")
-    print("total_images:              {}".format(total_images))
-    file.write("total_images:              {}\n".format(total_images * repetitions))
-    print("total_inference_time(sec): {}".format(total_batch_time))
-    file.write("total_inference_time(sec): {}\n".format(total_batch_time))
-    print("mean_inference_time(sec):  {}".format(mean_batch_time))
-    file.write("mean_inference_time(sec):  {}\n".format(mean_batch_time))
-    print("std_inference_time(sec):   {}".format(std_batch_time))
-    file.write("std_inference_time(sec):   {}\n".format(std_batch_time))
-
-
 
 #---------------------------------------------------------------------
 # Function:    helper_test()
 # Description: Helper function used to test classifier
 #---------------------------------------------------------------------
-def helper_test(args, file, model_path, model_file_path, model_name, skin_df_test, number_Cell_Type, lesion_id_dict, lesion_type_dict, colors_dict):
+def helper_test(args, file, model_path, model_file_path, model_name, jetson_logfile, skin_df_test, number_Cell_Type, lesion_id_dict, lesion_type_dict, colors_dict):
 
     run_images_path = os.path.join(model_path, "run_images")
     os.mkdir(run_images_path)
@@ -421,6 +364,9 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
     file.write("Model File Path:    {} \n".format(model_file_path))
     print("Model:              {}".format(model_name))
     file.write("Model:              {} \n".format(model_name))
+    if(jetson):
+        print("Jeston File Path:   {}".format(jetson_logfile))
+        file.write("Jeston File Path:   {} \n".format(jetson_logfile))
     print("Save Figures:       {}".format(save_fig))
     file.write("Save Figures:       {} \n".format(save_fig))
     print("Save Data:          {}".format(save_data))
@@ -477,6 +423,14 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
 
     model.eval()
 
+    # Collect Inference Time
+    starter, ender  = torch.cuda.Event(enable_timing = True), torch.cuda.Event(enable_timing = True)
+    batch_time_list = []
+    total_images    = 0
+
+    # Collect Jetson Stats
+    jetson_stats = []
+
     # Ground truth of image
     original   = torch.zeros(0, dtype = torch.long, device = 'cpu')
 
@@ -496,19 +450,29 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
                 print("Batch: ", batch)
                 print("*" * 5)
 
+                with jtop() as jetson_jtop:
+                    stats = jetson_jtop.stats
+                    jetson_stats.append(stats)
+
             images_per_batch = images.size(0)
             images   = images.to(device)
             labels   = labels.to(device)
+            starter.record()
             outputs  = model(images)
+            ender.record()
             _, preds = torch.max(outputs, 1)
             # print(outputs, outputs.shape)
-            dummy_input = images
 
             # Get prediction probability
             prob = nn.functional.softmax(outputs, dim=1)
             top_p, top_class = prob.topk(1, dim = 1)
             # print(prob, prob.shape, "\n")
             # print(top_p, top_p.shape, "\n")
+
+            # Wait for GPU sync
+            torch.cuda.synchronize()
+            curr_time = starter.elapsed_time(ender)
+            batch_time_list.append(curr_time)
 
             # Append batch prediction results
             original   = torch.cat([original,   images.view(images.size(0), -1).cpu()])
@@ -524,9 +488,26 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
                 total_images += 1
                 correctly_identified += int(labels[i] == max_index)
 
+            break
+
         print()
         print("Correctly identified = ", correctly_identified, " Total_images = ", total_images, " Accuracy = ", (float(correctly_identified)/total_images) * 100, "\n")
         file.write("Correctly identified = " + str(correctly_identified) + " Total_images = " + str(total_images) + " Accuracy = " + str((float(correctly_identified)/total_images) * 100) + "\n")
+
+    total_batch_time = np.sum(batch_time_list)
+    mean_batch_time  = total_batch_time / total_images
+    std_batch_time   = np.std(total_batch_time)
+
+    print()
+    file.write("\n")
+    print("total_images:              {}".format(total_images))
+    file.write("total_images:              {}\n".format(total_images))
+    print("total_inference_time(sec): {}".format(total_batch_time))
+    file.write("total_inference_time(sec): {}\n".format(total_batch_time))
+    print("mean_inference_time(sec):  {}".format(mean_batch_time))
+    file.write("mean_inference_time(sec):  {}\n".format(mean_batch_time))
+    print("std_inference_time(sec):   {}".format(std_batch_time))
+    file.write("std_inference_time(sec):   {}\n".format(std_batch_time))
 
     original   = original.numpy()
     y_output   = y_output.numpy()
@@ -534,6 +515,11 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
     y_label    = y_label.numpy()
     y_pred     = y_pred.numpy()
     y_pred_auc = y_pred_auc.numpy()
+
+    # Write jetson stats to csv
+    if(jetson):
+        jetson_df = pd.DataFrame(jetson_stats)
+        jetson_df.to_csv(jetson_logfile)
 
     target_names = ['AKIEC','BCC','BKL','DF','NV','MEL','VASC']
 
@@ -572,6 +558,3 @@ def helper_test(args, file, model_path, model_file_path, model_name, skin_df_tes
         original_tsne = visual_tsne(file, save_data, save_fig, model_path, run_images_path, original, y_pred, y_label, lesion_id_dict, 'original', colors_dict)
         y_output_tsne = visual_tsne(file, save_data, save_fig, model_path, run_images_path, y_output, y_pred, y_label, lesion_id_dict, 'y_output', colors_dict)
         plot_tsne(run_images_path, save_fig, original_tsne, y_output_tsne, lesion_id_dict, num_classes)
-
-    # Calculate Inference Time
-    calc_inference_time(file, model, device, dummy_input, test_loader)

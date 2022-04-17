@@ -32,7 +32,7 @@ def main():
     parser.add_argument('--save_fig'  , type = bool , default = True                                                         , help = 'Save Figures')
     parser.add_argument('--save_data' , type = bool , default = True                                                         , help = 'Save Data to CSV')
     parser.add_argument('--pretrained', type = bool , default = True                                                         , help = 'Use Pretrained Models (e.g True)')
-    parser.add_argument('--jetson'    , type = bool , default = False                                                        , help = 'Currently using Jetson')
+    parser.add_argument('--jetson'    , type = bool , default = True                                                         , help = 'Currently using Jetson')
     parser.add_argument('--batch'     , type = int  , default = 2                                                            , help = 'Select Batch Size (e.g 32)')
     parser.add_argument('--worker'    , type = int  , default = 1                                                            , help = 'Select Number of Workers (e.g 4)')
     parser.add_argument('--imgsz'     , type = int  , default = 64                                                           , help = 'Select Input Image Size (e.g 225)')
@@ -54,6 +54,7 @@ def main():
 
     model_name      = args.model_name
     model_file_path = os.path.join("OUTPUT", "Models", model_name, "Train", args.model_path, "classifier.pth")
+    jetson_logfile  = os.path.join("OUTPUT", "Models", model_name, "Test", args.model_path, "jetson_stat_log.csv")
 
     cont = True
     count = 0
@@ -81,7 +82,7 @@ def main():
     number_Cell_Type = 7
 
     lesion_id_dict, lesion_type_dict, colors_dict = find_dict_type(file)
-    helper_test(args, file, model_path, model_file_path, model_name, skin_df_test, number_Cell_Type, lesion_id_dict, lesion_type_dict, colors_dict)
+    helper_test(args, file, model_path, model_file_path, model_name, jetson_logfile, skin_df_test, number_Cell_Type, lesion_id_dict, lesion_type_dict, colors_dict)
 
     endT = time.time()
     program_time_difference = endT - startT

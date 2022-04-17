@@ -48,9 +48,12 @@ def main():
                 writer = csv.DictWriter(csvfile, fieldnames = stats.keys())
                 writer.writeheader()
                 writer.writerow(stats)
-                while jetson.ok():
+
+                while(1):
+                # while jetson.ok():
                     stats = jetson.stats
                     writer.writerow(stats)
+
     except JtopException as e:
         print(e)
     except KeyboardInterrupt:

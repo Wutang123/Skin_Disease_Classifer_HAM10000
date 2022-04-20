@@ -104,7 +104,7 @@ Skin Disease Classifier using the HAM10000 dataset
 # Evaluation
 - Manifold Representation (t-SNE)
 - Jetson Stats (jtop)L Power consumption, CPU/GPU Utilization, etc
-- Inference time,
+- Inference time
 - Accuracy
 - Loss
 - Training and Testing Time
